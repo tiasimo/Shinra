@@ -6,6 +6,9 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/services.dart';
 
 class ThemeProvider extends ChangeNotifier {
+  // Colore ufficiale di Shinra: Rosso Cremisi / Adolla Flame (Cambia in 0xFF8A2BE2 se preferisci Viola Reale)
+  static const Color shinraDefaultColor = Color(0xFFFF1E42);
+
   bool isLightMode;
   bool isSystemMode;
   bool isOled;
@@ -18,10 +21,11 @@ class ThemeProvider extends ChangeNotifier {
   List<String> availThemeModes = ["default", "material", "custom"];
 
   ThemeProvider()
-      : _seedColor = Colors.indigo,
+      : _seedColor = shinraDefaultColor,
         isLightMode = ThemeKeys.isLightMode.get<bool>(false),
         isSystemMode = ThemeKeys.isSystemMode.get<bool>(false),
-        isOled = ThemeKeys.isOled.get<bool>(false),
+        // Nero Puro AMOLED attivo di fabbrica su Shinra!
+        isOled = ThemeKeys.isOled.get<bool>(true),
         selectedVariantIndex = ThemeKeys.selectedVariantIndex.get<int>(0),
         currentThemeMode = ThemeKeys.themeMode.get<String>("default") {
     _determineSeedColor();
@@ -33,13 +37,13 @@ class ThemeProvider extends ChangeNotifier {
 
   void _determineSeedColor() {
     if (currentThemeMode == "default") {
-      _seedColor = Colors.indigo;
+      _seedColor = shinraDefaultColor;
     } else if (currentThemeMode == "material") {
       loadDynamicTheme();
     } else {
       int colorIndex = ThemeKeys.customColorIndex.get<int>(0);
       if (colorIndex == -1) {
-        final hexStr = ThemeKeys.customHexColor.get<String>("#FFFFFF");
+        final hexStr = ThemeKeys.customHexColor.get<String>("#FF1E42");
         _seedColor = Color(int.parse(hexStr.replaceFirst('#', '0xff')));
       } else {
         _seedColor = colorList[colorIndex];
@@ -53,7 +57,7 @@ class ThemeProvider extends ChangeNotifier {
     final corePalette = await DynamicColorPlugin.getCorePalette();
     _seedColor = corePalette != null
         ? Color(corePalette.primary.get(40))
-        : Colors.indigo;
+        : shinraDefaultColor;
     _updateTheme();
   }
 
@@ -94,7 +98,7 @@ class ThemeProvider extends ChangeNotifier {
   void setDefaultTheme() {
     currentThemeMode = "default";
     ThemeKeys.themeMode.set("default");
-    _seedColor = Colors.indigo;
+    _seedColor = shinraDefaultColor;
     _updateTheme();
   }
 
@@ -108,7 +112,7 @@ class ThemeProvider extends ChangeNotifier {
         ThemeKeys.customHexColor.set(hexStr);
         _seedColor = customColor;
       } else {
-        final hexStr = ThemeKeys.customHexColor.get<String>("#FFFFFF");
+        final hexStr = ThemeKeys.customHexColor.get<String>("#FF1E42");
         _seedColor = Color(int.parse(hexStr.replaceFirst('#', '0xff')));
       }
     } else {
@@ -149,10 +153,10 @@ class ThemeProvider extends ChangeNotifier {
     isLightMode = false;
     isSystemMode = false;
     ThemeKeys.isSystemMode.set(isSystemMode);
-    isOled = false;
+    isOled = true;
     selectedVariantIndex = 0;
     currentThemeMode = "default";
-    _seedColor = Colors.indigo;
+    _seedColor = shinraDefaultColor;
 
     _updateTheme();
     notifyListeners();
