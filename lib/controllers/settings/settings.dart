@@ -25,13 +25,14 @@ Settings get settingsController => Get.find<Settings>();
 class Settings extends GetxController {
   late Rx<UISettings> uiSettings;
   late Rx<PlayerSettings> playerSettings;
-  final RxString discordUrl = 'https://discord.gg/GKVvSyXDUD'.obs;
-  final RxString telegramUrl = 'https://t.me/AnymeX_Discussion'.obs;
-  final RxBool showJoinDialog = true.obs;
-  bool linksFetched = false;
+  final RxString discordUrl = ''.obs;
+  final RxString telegramUrl = ''.obs;
+  final RxBool showJoinDialog = false.obs;
+  bool linksFetched = true;
   VoidCallback? onLinksReady;
 
-  final canShowUpdate = true.obs;
+  // Disattiva gli avvisi di update dell'AnymeX originale per non sovrascrivere Shinra
+  final canShowUpdate = false.obs;
   final playerControlThemeRx = 'default'.obs;
   final mediaIndicatorThemeRx = 'default'.obs;
   final readerControlThemeRx = 'default'.obs;
@@ -54,7 +55,8 @@ class Settings extends GetxController {
 
   RxBool isTV = false.obs;
   final _selectedShader = ''.obs;
-  final _selectedProfile = 'MID-END'.obs;
+  // Profilo prestazioni impostato su HIGH-END di default per Shinra
+  final _selectedProfile = 'HIGH-END'.obs;
   final mpvPath = ''.obs;
   RxString bridgeMode = 'sidecar'.obs;
 
@@ -79,14 +81,22 @@ class Settings extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _fetchInviteLinks();
 
     playerSettings = Rx<PlayerSettings>(PlayerSettings.fromDB());
     uiSettings = Rx<UISettings>(UISettings.fromDB());
     uiSettings.value.normalizeMaps();
 
+    // Forza estetica Liquid Glass & Trasparenze come predefinite di Shinra
+    if (General.isFirstTime.get<bool>(true)) {
+      liquidMode = true;
+      transculentBar = true;
+      enableAnimation = true;
+      glowMultiplier = 1.2;
+      blurMultiplier = 1.2;
+    }
+
     selectedShader = PlayerUiKeys.selectedShaderLegacy.get<String>("");
-    selectedProfile = PlayerUiKeys.selectedProfile.get<String>("MID-END");
+    selectedProfile = PlayerUiKeys.selectedProfile.get<String>("HIGH-END");
     playerControlThemeRx.value =
         PlayerUiKeys.playerControlTheme.get<String>('default');
     final savedIndicatorTheme =
@@ -182,35 +192,11 @@ class Settings extends GetxController {
     return "${mode.width}x${mode.height} @ ${mode.refreshRate.toInt()}Hz";
   }
 
-  Future<void> _fetchInviteLinks() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/github_assets/links.json'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['discord'] != null) {
-          discordUrl.value = data['discord'];
-        }
-        if (data['telegram'] != null) {
-          telegramUrl.value = data['telegram'];
-        }
-        final joinVal = data['showJoinDialog'];
-        if (joinVal != null) {
-          showJoinDialog.value = joinVal as bool;
-        }
-      }
-    } catch (e) {
-      Logger.e("Failed to fetch invite links: $e");
-    } finally {
-      linksFetched = true;
-      onLinksReady?.call();
-    }
-  }
-
   void checkForUpdates(BuildContext context, {bool manualCheck = false}) {
+    if (!manualCheck) return;
     UpdateManager().checkForUpdates(
       context,
-      RxBool(true),
+      RxBool(false),
       isBeta: enableBetaUpdates.value,
       manualCheck: manualCheck,
     );
@@ -279,27 +265,6 @@ class Settings extends GetxController {
     if (General.isFirstTime.get<bool>(true)) {
       showWelcomeDialogg(context);
       return;
-    }
-
-    if (linksFetched) {
-      _checkAndShowJoinDialog(context);
-    } else {
-      onLinksReady = () {
-        _checkAndShowJoinDialog(context);
-      };
-    }
-  }
-
-  void _checkAndShowJoinDialog(BuildContext context) {
-    final showOnline = showJoinDialog.value;
-    if (showOnline) {
-      showDiscordJoinDialog(context);
-    } else {
-      final count = General.joinDialogShowCount.get<int>(0);
-      if (count < 3) {
-        General.joinDialogShowCount.set(count + 1);
-        showDiscordJoinDialog(context);
-      }
     }
   }
 
@@ -464,9 +429,7 @@ class Settings extends GetxController {
                 'Stats',
                 if (isDesktop) 'Extensions'
               ]
-            : (isDesktop
-                ? ['Home', 'Anime', 'Manga', 'Library', 'Stats', 'Extensions']
-                : ['Home', 'Anime', 'Manga', 'Library', 'Stats']))
+            : ['Home', 'Anime', 'Manga', 'Library', 'Stats', 'Extensions'])
         : (isExtensionsService
             ? [
                 'Home',
@@ -476,16 +439,7 @@ class Settings extends GetxController {
                 'Stats',
                 if (isDesktop) 'Extensions'
               ]
-            : (isDesktop
-                ? [
-                    'Home',
-                    'Discover',
-                    'Library',
-                    'History',
-                    'Stats',
-                    'Extensions'
-                  ]
-                : ['Home', 'Discover', 'Library', 'History', 'Stats']));
+            : ['Home', 'Discover', 'Library', 'History', 'Stats', 'Extensions']);
 
     if (raw.isEmpty) {
       return defaultTabs;
