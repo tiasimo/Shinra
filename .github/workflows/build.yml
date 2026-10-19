@@ -31,14 +31,19 @@ jobs:
       - name: Installa dipendenze
         run: flutter pub get
 
-      - name: Ribattezza l'app in Shinra (Nome + Package ID indipendente)
+      - name: Personalizzazione Totale Shinra (Punto 2 - Nome, ID e UI)
         run: |
-          # Cambia il nome visualizzato sotto l'icona in Shinra
+          # 1. Cambia il nome sotto l'icona Android in Shinra
           sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
-          # Rimuove la richiesta della chiave segreta dell'autore originale usando la firma universale
+          
+          # 2. Cambia tutte le scritte "AnymeX" dentro le schermate dell'app in "Shinra"
+          find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} +
+          
+          # 3. Usa la firma universale per generare l'APK senza chiavi segrete
           sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle || true
           sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/g' android/app/build.gradle.kts || true
+
 
       - name: Compila i file APK
         run: flutter build apk --release --split-per-abi
