@@ -46,7 +46,7 @@ class _NovelContentWidgetState extends State<NovelContentWidget> {
           buttonItems: [
             ...selectableRegionState.contextMenuButtonItems,
             ContextMenuButtonItem(
-              label: 'Dictionary',
+              label: 'Dizionario',
               onPressed: () async {
                 selectableRegionState
                     .copySelection(SelectionChangedCause.toolbar);
@@ -117,7 +117,7 @@ class _NovelContentWidgetState extends State<NovelContentWidget> {
         children: [
           ExpressiveLoadingIndicator(color: context.colors.primary),
           const SizedBox(height: 16),
-          AnymeXText('Loading chapter...',
+          AnymeXText('Caricamento capitolo...',
               style: TextStyle(
                   color: context.colors.onSurface.opaque(0.7), fontSize: 16)),
         ],
@@ -133,7 +133,7 @@ class _NovelContentWidgetState extends State<NovelContentWidget> {
           Icon(Icons.book_outlined,
               size: 48, color: context.colors.onSurface.opaque(0.5)),
           const SizedBox(height: 16),
-          AnymeXText('No content available',
+          AnymeXText('Nessun contenuto disponibile',
               style: TextStyle(
                   fontSize: 18,
                   color: context.colors.onSurface.opaque(0.7),
@@ -149,42 +149,52 @@ class _NovelContentWidgetState extends State<NovelContentWidget> {
       onPointerUp: widget.controller.onPointerUp,
       child: NotificationListener<ScrollNotification>(
         onNotification: widget.controller.onScrollNotification,
-        child: CustomScrollView(
-          controller: widget.controller.scrollController,
-          physics: const AlwaysScrollableScrollPhysics(
-              parent: ClampingScrollPhysics()),
-          slivers: [
-            Obx(() {
-              return SliverPadding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: widget.controller.paddingHorizontal.value,
-                    vertical: widget.controller.paddingVertical.value),
-                sliver: HtmlWidget(
-                  widget.controller.novelContent.value,
-                  rebuildTriggers: [
-                    widget.controller.fontSize.value,
-                    widget.controller.lineHeight.value,
-                    widget.controller.letterSpacing.value,
-                    widget.controller.wordSpacing.value,
-                    widget.controller.paragraphSpacing.value,
-                    widget.controller.fontFamily.value,
-                    widget.controller.textAlign.value,
-                    widget.controller.themeMode.value,
-                    widget.controller.backgroundOpacity.value,
-                    widget.controller.ttsHighlightedElement.value,
-                    widget.controller.ttsCurrentWordStart.value,
-                    widget.controller.ttsCurrentWordEnd.value,
-                  ],
-                  renderMode: RenderMode.sliverList,
-                  textStyle: _getBaseTextStyle(context),
-                  customWidgetBuilder: (element) =>
-                      _getCustomWidget(element, context),
-                  customStylesBuilder: (element) =>
-                      _getCustomStyles(element, context),
-                ),
-              );
-            }),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Ottimizzazione Tablet: se lo schermo è largo (> 700px), applica un limite massimo centrato (Modalità Libro)
+            final bool isTablet = constraints.maxWidth > 700;
+            final double horizontalPadding = isTablet
+                ? (constraints.maxWidth - 680) / 2
+                : widget.controller.paddingHorizontal.value;
+
+            return CustomScrollView(
+              controller: widget.controller.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: ClampingScrollPhysics()),
+              slivers: [
+                Obx(() {
+                  return SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding > 0 ? horizontalPadding : 16,
+                        vertical: widget.controller.paddingVertical.value),
+                    sliver: HtmlWidget(
+                      widget.controller.novelContent.value,
+                      rebuildTriggers: [
+                        widget.controller.fontSize.value,
+                        widget.controller.lineHeight.value,
+                        widget.controller.letterSpacing.value,
+                        widget.controller.wordSpacing.value,
+                        widget.controller.paragraphSpacing.value,
+                        widget.controller.fontFamily.value,
+                        widget.controller.textAlign.value,
+                        widget.controller.themeMode.value,
+                        widget.controller.backgroundOpacity.value,
+                        widget.controller.ttsHighlightedElement.value,
+                        widget.controller.ttsCurrentWordStart.value,
+                        widget.controller.ttsCurrentWordEnd.value,
+                      ],
+                      renderMode: RenderMode.sliverList,
+                      textStyle: _getBaseTextStyle(context),
+                      customWidgetBuilder: (element) =>
+                          _getCustomWidget(element, context),
+                      customStylesBuilder: (element) =>
+                          _getCustomStyles(element, context),
+                    ),
+                  );
+                }),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -315,7 +325,7 @@ class _DictionarySheetState extends State<_DictionarySheet> {
       } else {
         if (mounted) {
           setState(() {
-            _error = 'No definition found for "${widget.word}"';
+            _error = 'Nessuna definizione trovata per "${widget.word}"';
             _loading = false;
           });
         }
@@ -323,7 +333,7 @@ class _DictionarySheetState extends State<_DictionarySheet> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Could not reach dictionary.';
+          _error = 'Impossibile raggiungere il dizionario.';
           _loading = false;
         });
       }
