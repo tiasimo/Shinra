@@ -84,8 +84,8 @@ class _NovelReaderState extends State<NovelReader>
       }
       if (controller.useSystemReaderTheme) {
         return AnymeXScaffold(
-  body: content
-);
+          body: content,
+        );
       }
       return content;
     });
@@ -139,7 +139,7 @@ class _NovelReaderState extends State<NovelReader>
                           _ttsMenuButton(
                             context: context,
                             icon: Icons.skip_previous_rounded,
-                            tooltip: 'Previous Paragraph',
+                            tooltip: 'Paragrafo Precedente',
                             onPressed: () {
                               HapticFeedback.lightImpact();
                               controller.ttsPrevious();
@@ -152,8 +152,8 @@ class _NovelReaderState extends State<NovelReader>
                                 ? Icons.pause_rounded
                                 : Icons.play_arrow_rounded,
                             tooltip: controller.ttsPlaying.value
-                                ? 'Pause TTS'
-                                : 'Play TTS',
+                                ? 'Pausa Lettura Vocale'
+                                : 'Avvia Lettura Vocale',
                             isActive: controller.ttsPlaying.value,
                             onPressed: () {
                               HapticFeedback.lightImpact();
@@ -164,7 +164,7 @@ class _NovelReaderState extends State<NovelReader>
                           _ttsMenuButton(
                             context: context,
                             icon: Icons.skip_next_rounded,
-                            tooltip: 'Next Paragraph',
+                            tooltip: 'Paragrafo Successivo',
                             onPressed: () {
                               HapticFeedback.lightImpact();
                               controller.ttsNext();
@@ -222,9 +222,9 @@ class _NovelReaderState extends State<NovelReader>
               ? controller.chapters[targetIndex]
               : null;
 
-      final subtitleText = isNext ? 'Next Chapter' : 'Previous Chapter';
+      final subtitleText = isNext ? 'Capitolo Successivo' : 'Capitolo Precedente';
       final titleText =
-          targetChapter?.title ?? 'Chapter ${targetChapter?.number ?? '?'}';
+          targetChapter?.title ?? 'Capitolo ${targetChapter?.number ?? '?'}';
 
       final String displaySubtitle;
       final String displayTitle;
@@ -232,11 +232,11 @@ class _NovelReaderState extends State<NovelReader>
         displaySubtitle = subtitleText;
         displayTitle = titleText;
       } else if (targetIndex < 0) {
-        displaySubtitle = 'Reached Top';
-        displayTitle = 'This is the First Chapter';
+        displaySubtitle = 'Inizio';
+        displayTitle = 'Questo è il primo capitolo';
       } else {
-        displaySubtitle = 'Reached End';
-        displayTitle = 'This is the Last Chapter';
+        displaySubtitle = 'Fine';
+        displayTitle = 'Questo è l\'ultimo capitolo';
       }
 
       Color progressColor;
@@ -331,7 +331,8 @@ class _NovelReaderState extends State<NovelReader>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      AnymeXText(displayTitle,
+                      AnymeXText(
+                        displayTitle,
                         size: 14,
                         variant: TextVariant.semiBold,
                         color: context.colors.onSurface,
