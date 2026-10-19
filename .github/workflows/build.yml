@@ -31,16 +31,41 @@ jobs:
       - name: Installa dipendenze
         run: flutter pub get
 
-      - name: Personalizzazione Totale Shinra (Punto 2 - Nome, ID e UI)
+      - name: Personalizzazione Shinra + Traduzione Italiana (Punti 2 e 4)
         run: |
-          # 1. Cambia il nome sotto l'icona Android in Shinra
+          # 1. Nome sotto l'icona Android e Package ID indipendente
           sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
           
-          # 2. Cambia tutte le scritte "AnymeX" dentro le schermate dell'app in "Shinra"
+          # 2. Sostituisce ogni scritta visibile "AnymeX" con "Shinra" in tutta l'app
           find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} +
           
-          # 3. Usa la firma universale per generare l'APK senza chiavi segrete
+          # 3. Traduzione Interfaccia Principale in Italiano
+          find lib/screens/ lib/widgets/ -type f -name "*.dart" -exec sed -i \
+            -e "s/'Continue Watching'/'Continua a guardare'/g" \
+            -e 's/"Continue Watching"/"Continua a guardare"/g' \
+            -e "s/'Continue Reading'/'Continua a leggere'/g" \
+            -e 's/"Continue Reading"/"Continua a leggere"/g' \
+            -e "s/'Currently Watching'/'In visione'/g" \
+            -e "s/'Currently Reading'/'In lettura'/g" \
+            -e "s/'Trending Anime'/'Anime in tendenza'/g" \
+            -e "s/'Trending Manga'/'Manga in tendenza'/g" \
+            -e "s/'Popular Anime'/'Anime popolari'/g" \
+            -e "s/'Popular Manga'/'Manga popolari'/g" \
+            -e "s/'Top Rated'/'Più votati'/g" \
+            -e "s/'Recently Updated'/'Aggiornati di recente'/g" \
+            -e "s/'Search...'/'Cerca...'/g" \
+            -e "s/'Settings'/'Impostazioni'/g" \
+            -e "s/'Extensions'/'Estensioni'/g" \
+            -e "s/'Installed'/'Installate'/g" \
+            -e "s/'Available'/'Disponibili'/g" \
+            -e "s/'Chapters'/'Capitoli'/g" \
+            -e "s/'Episodes'/'Episodi'/g" \
+            -e "s/'Characters'/'Personaggi'/g" \
+            -e "s/'Recommendations'/'Consigliati'/g" \
+            {} +
+
+          # 4. Firma universale per compilazione senza chiavi segrete
           sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle || true
           sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/g' android/app/build.gradle.kts || true
 
