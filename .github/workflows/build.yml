@@ -3,44 +3,34 @@ name: Build Shinra
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build-android:
     name: Compila Shinra APK (Android)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del codice
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Configura Java 17
-        uses: actions/setup-java@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configura Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
+          flutter-version: 'X.Y.Z'   # versione di AnymeX
           channel: 'stable'
           cache: true
 
-      - name: Personalizzazione etichetta Android
-        run: |
-          sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
-          sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
+      - name: Etichetta Android
+        run: sed -i 's/android:label="[^"]*"/android:label="Shinra"/' android/app/src/main/AndroidManifest.xml
 
-      - name: Scarica dipendenze
-        run: flutter pub get
+      - run: flutter pub get
 
-      - name: Compila APK Standard
-        run: flutter build apk --release --no-pub
+      - run: flutter build apk --debug
 
-      - name: Carica APK come Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Shinra-Android-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
