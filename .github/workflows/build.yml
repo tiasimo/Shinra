@@ -17,7 +17,7 @@ jobs:
           submodules: recursive
 
       - name: Configura Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -28,29 +28,19 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Personalizzazione e Correzione Bridge
+      - name: Personalizzazione etichetta Android
         run: |
           sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
           sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
-          
-          # Sostituzione sicura nei file Dart (tranne il runtime bridge)
-          find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} + || true
-          
-          # Ripristina la classe del bridge originale per evitare errori di compilazione
-          find lib/ -type f -name "*.dart" -exec sed -i 's/ShinraRuntimeBridge/AnymeXRuntimeBridge/g' {} + || true
-          
-          # Firma di debug
-          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle || true
-          sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/g' android/app/build.gradle.kts || true
 
-      - name: Scarica dipendenze Flutter
+      - name: Scarica dipendenze
         run: flutter pub get
 
-      - name: Compila APK Universale (Debug)
-        run: flutter build apk --debug --android-skip-build-dependency-validation
+      - name: Compila APK Standard
+        run: flutter build apk --release --no-pub
 
       - name: Carica APK come Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Shinra-Android-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
