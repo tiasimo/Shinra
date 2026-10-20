@@ -81,8 +81,9 @@ class SourceController extends GetxController implements BaseService {
     ItemType.novel: {},
   };
 
-  final isExtensionsServiceAllowed = false.obs;
-  final shouldShowExtensions = false.obs;
+  // Sbloccati di fabbrica su Shinra!
+  final isExtensionsServiceAllowed = true.obs;
+  final shouldShowExtensions = true.obs;
 
   final _pendingRebuilds = <ItemType>{};
   Timer? _rebuildTimer;
@@ -96,9 +97,7 @@ class SourceController extends GetxController implements BaseService {
   };
 
   void _refreshVisibility() {
-    shouldShowExtensions.value = installedExtensions.isNotEmpty ||
-        installedMangaExtensions.isNotEmpty ||
-        installedNovelExtensions.isNotEmpty;
+    shouldShowExtensions.value = true;
   }
 
   void saveRepoSettings() => _refreshVisibility();
@@ -511,7 +510,7 @@ class SourceController extends GetxController implements BaseService {
       _homeReady = true;
     } catch (e) {
       Logger.i('Error in fetchHomePage: $e');
-      errorSnackBar('Failed to fetch data from sources.');
+      errorSnackBar('Impossibile recuperare i dati dalle fonti.');
     }
   }
 
@@ -530,12 +529,12 @@ class SourceController extends GetxController implements BaseService {
 
     _homeSections.value = [
       buildSection(
-        'Continue Watching',
+        'Continua a guardare',
         animeLibrary,
         variant: DataVariant.offline,
       ),
       buildSection(
-        'Continue Reading',
+        'Continua a leggere',
         mangaLibrary,
         variant: DataVariant.offline,
         type: ItemType.manga,
@@ -645,8 +644,8 @@ class SourceController extends GetxController implements BaseService {
         if (installed.isNotEmpty &&
             manager.isNewerVersion(installed, latestRelease.tagName)) {
           infoSnackBar(
-            "Extension Bridge has an update available (${latestRelease.tagName})",
-            title: "Bridge Update Available",
+            "Aggiornamento disponibile per il Bridge Estensioni (${latestRelease.tagName})",
+            title: "Aggiornamento Bridge",
             onTap: () {
               navigate(() => const SettingsExtensionManager());
             },
