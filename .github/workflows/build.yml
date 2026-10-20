@@ -26,6 +26,9 @@ jobs:
       - name: Etichetta Android
         run: sed -i 's/android:label="[^"]*"/android:label="Shinra"/' android/app/src/main/AndroidManifest.xml
 
+      - name: Crea file .env
+        run: touch .env
+
       - run: flutter pub get
 
       - run: flutter build apk --debug
