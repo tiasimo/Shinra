@@ -34,15 +34,15 @@ jobs:
           sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
           find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} + || true
           
-          # Forza Gradle a usare la firma di debug per evitare errori di keystore mancante
+          # Forza Gradle a usare la firma di debug
           sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle || true
           sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/g' android/app/build.gradle.kts || true
 
       - name: Scarica dipendenze Flutter
         run: flutter pub get
 
-      - name: Compila APK (Modalità universale)
-        run: flutter build apk --debug --split-per-abi
+      - name: Compila APK (Bypass convalida Gradle)
+        run: flutter build apk --debug --split-per-abi --android-skip-build-dependency-validation
 
       - name: Carica APK come Artifact
         uses: actions/upload-artifact@v4
