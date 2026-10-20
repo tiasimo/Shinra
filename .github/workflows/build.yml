@@ -11,7 +11,7 @@ jobs:
     name: Compila Shinra APK (Android)
     runs-on: ubuntu-latest
     steps:
-      - name: Scarica il codice di Shinra
+      - name: Checkout del codice
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -25,34 +25,23 @@ jobs:
       - name: Configura Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x' # Versione stabile e compatibile
           channel: 'stable'
           cache: true
 
-      - name: Accetta licenze Android SDK
+      - name: Modifica Nome app e Firma
         run: |
-          yes | flutter doctor --android-licenses || true
-
-      - name: Personalizzazione Nome e ID Shinra
-        run: |
-          # Cambia il nome visualizzato sotto l'icona
-          sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
-          sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml
-          
-          # Sostituzione sicura delle etichette principali senza toccare il codice logico
-          find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} +
-
-          # Firma di debug universale per evitare errori di keystore mancanti
+          sed -i 's/android:label="AnymeX"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:label="anymex"/android:label="Shinra"/g' android/app/src/main/AndroidManifest.xml || true
+          find lib/ -type f -name "*.dart" -exec sed -i 's/AnymeX/Shinra/g' {} + || true
           sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/g' android/app/build.gradle || true
-          sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debug")/g' android/app/build.gradle.kts || true
 
-      - name: Pulisci e scarica dipendenze
-        run: flutter clean && flutter pub get
+      - name: Scarica dipendenze Flutter
+        run: flutter pub get
 
-      - name: Compila i file APK Release
+      - name: Compila APK Release
         run: flutter build apk --release --split-per-abi
 
-      - name: Salva gli APK pronti per il download
+      - name: Carica APK come Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Shinra-Android-APK
