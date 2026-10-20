@@ -19,7 +19,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'X.Y.Z'   # versione di AnymeX
+          flutter-version: '3.41.6'
           channel: 'stable'
           cache: true
 
