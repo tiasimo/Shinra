@@ -43,17 +43,18 @@ class NovelReaderController extends GetxController {
   RxBool showControls = true.obs;
   RxBool showSettings = false.obs;
 
-  RxDouble fontSize = 16.0.obs;
-  RxDouble lineHeight = 1.6.obs;
-  RxDouble letterSpacing = 0.0.obs;
+  // Valori predefiniti ottimizzati per Shinra (Lettura confortevole e Giustificata)
+  RxDouble fontSize = 17.5.obs;
+  RxDouble lineHeight = 1.7.obs;
+  RxDouble letterSpacing = 0.1.obs;
   RxDouble wordSpacing = 0.0.obs;
-  RxDouble paragraphSpacing = 16.0.obs;
+  RxDouble paragraphSpacing = 18.0.obs;
   RxString fontFamily = 'System'.obs;
-  RxInt textAlign = 0.obs;
-  RxDouble paddingHorizontal = 16.0.obs;
-  RxDouble paddingVertical = 8.0.obs;
+  RxInt textAlign = 2.obs; // 2 = Giustificato (stile libro stampato)
+  RxDouble paddingHorizontal = 22.0.obs;
+  RxDouble paddingVertical = 12.0.obs;
 
-  RxInt themeMode = 0.obs;
+  RxInt themeMode = 1.obs; // 1 = Tema Nero Puro AMOLED con testo Avorio Caldo
   RxDouble backgroundOpacity = 1.0.obs;
 
   RxBool canGoNext = true.obs;
@@ -161,19 +162,19 @@ class NovelReaderController extends GetxController {
   }
 
   void _loadSettings() {
-    themeMode.value = NovelReaderKeys.themeMode.get<int>(3);
+    themeMode.value = NovelReaderKeys.themeMode.get<int>(1);
     backgroundOpacity.value =
         NovelReaderKeys.backgroundOpacity.get<double>(1.0);
-    fontSize.value = NovelReaderKeys.fontSize.get<double>(16.0);
-    lineHeight.value = NovelReaderKeys.lineHeight.get<double>(1.6);
-    letterSpacing.value = NovelReaderKeys.letterSpacing.get<double>(0.0);
+    fontSize.value = NovelReaderKeys.fontSize.get<double>(17.5);
+    lineHeight.value = NovelReaderKeys.lineHeight.get<double>(1.7);
+    letterSpacing.value = NovelReaderKeys.letterSpacing.get<double>(0.1);
     wordSpacing.value = NovelReaderKeys.wordSpacing.get<double>(0.0);
-    paragraphSpacing.value = NovelReaderKeys.paragraphSpacing.get<double>(16.0);
+    paragraphSpacing.value = NovelReaderKeys.paragraphSpacing.get<double>(18.0);
     fontFamily.value = NovelReaderKeys.fontFamily.get<String>('System');
-    textAlign.value = NovelReaderKeys.textAlign.get<int>(0);
+    textAlign.value = NovelReaderKeys.textAlign.get<int>(2);
     paddingHorizontal.value =
-        NovelReaderKeys.paddingHorizontal.get<double>(16.0);
-    paddingVertical.value = NovelReaderKeys.paddingVertical.get<double>(8.0);
+        NovelReaderKeys.paddingHorizontal.get<double>(22.0);
+    paddingVertical.value = NovelReaderKeys.paddingVertical.get<double>(12.0);
     autoScrollEnabled.value = NovelReaderKeys.autoScroll.get<bool>(false);
     autoScrollSpeed.value = NovelReaderKeys.autoScrollSpeed.get<double>(3.0);
     volumeButtonScrolling.value =
@@ -435,7 +436,6 @@ class NovelReaderController extends GetxController {
         ((currentSegIndex + wordProgressInSeg) / ttsSegments.length)
             .clamp(0.0, 1.0);
 
-    // Weighted progress: 70% character density (time spent reading), 30% paragraph structure
     final double weightedProgress = (charProgress * 0.7) + (segProgress * 0.3);
 
     final double viewportHeight = scrollController.position.viewportDimension;
@@ -448,7 +448,6 @@ class NovelReaderController extends GetxController {
 
     final double currentOffset = scrollController.offset;
 
-    // Comfort zone check: if target is already inside 15% - 55% of viewport height, don't jump!
     final double upperLimit = currentOffset + (viewportHeight * 0.15);
     final double lowerLimit = currentOffset + (viewportHeight * 0.55);
 
@@ -528,7 +527,6 @@ class NovelReaderController extends GetxController {
 
     while (i < html.length) {
       if (html[i] == '<') {
-        // Skip entire tag
         final tagEnd = html.indexOf('>', i);
         if (tagEnd == -1) break;
         i = tagEnd + 1;
@@ -570,7 +568,7 @@ class NovelReaderController extends GetxController {
       final voices = await flutterTts.getVoices;
       if (voices is! List) return;
       _ttsVoiceLocaleMap.clear();
-      final deviceLocale = Get.deviceLocale?.toString() ?? 'en';
+      final deviceLocale = Get.deviceLocale?.toString() ?? 'it';
       final deviceLang =
           deviceLocale.split(RegExp(r'[_-]')).first.toLowerCase();
       final deviceVoices = <String>[];
@@ -588,7 +586,7 @@ class NovelReaderController extends GetxController {
         if (_ttsVoiceLocaleMap.containsKey(name)) continue;
         _ttsVoiceLocaleMap[name] = locale;
         final voiceLang = locale.split(RegExp(r'[_-]')).first.toLowerCase();
-        if (voiceLang == deviceLang || locale.isEmpty) {
+        if (voiceLang == 'it' || voiceLang == deviceLang || locale.isEmpty) {
           deviceVoices.add(name);
         } else {
           otherVoices.add(name);
@@ -994,7 +992,7 @@ class NovelReaderController extends GetxController {
         .replaceAll('*"', '')
         .replaceAll('"*', '');
     final cleaned = _cleanHtmlTags(processed);
-    return '<div id="readerViewContent"><div style="max-width: 800px; margin: 0 auto;">$cleaned</div></div>';
+    return '<div id="readerViewContent"><div style="max-width: 760px; margin: 0 auto;">$cleaned</div></div>';
   }
 
   void toggleControls() {
@@ -1141,7 +1139,7 @@ class NovelReaderController extends GetxController {
   }
 
   void increaseFontSize() {
-    if (fontSize.value < 24) {
+    if (fontSize.value < 32) {
       fontSize.value += 1;
       _saveSettings();
     }
@@ -1155,7 +1153,7 @@ class NovelReaderController extends GetxController {
   }
 
   void setFontSize(double value) {
-    fontSize.value = value.clamp(12.0, 24.0);
+    fontSize.value = value.clamp(12.0, 32.0);
     _saveSettings();
   }
 
@@ -1165,7 +1163,7 @@ class NovelReaderController extends GetxController {
   }
 
   void setParagraphSpacing(double value) {
-    paragraphSpacing.value = value.clamp(8.0, 32.0);
+    paragraphSpacing.value = value.clamp(8.0, 36.0);
     _saveSettings();
   }
 
@@ -1190,12 +1188,12 @@ class NovelReaderController extends GetxController {
   }
 
   void setHorizontalPadding(double value) {
-    paddingHorizontal.value = value.clamp(8.0, 32.0);
+    paddingHorizontal.value = value.clamp(8.0, 120.0);
     _saveSettings();
   }
 
   void setVerticalPadding(double value) {
-    paddingVertical.value = value.clamp(4.0, 24.0);
+    paddingVertical.value = value.clamp(4.0, 36.0);
     _saveSettings();
   }
 
@@ -1429,15 +1427,15 @@ class NovelReaderController extends GetxController {
   }
 
   void resetSettings() {
-    fontSize.value = 16.0;
-    lineHeight.value = 1.6;
-    letterSpacing.value = 0.0;
+    fontSize.value = 17.5;
+    lineHeight.value = 1.7;
+    letterSpacing.value = 0.1;
     wordSpacing.value = 0.0;
-    paragraphSpacing.value = 16.0;
+    paragraphSpacing.value = 18.0;
     fontFamily.value = 'System';
-    textAlign.value = 0;
-    paddingHorizontal.value = 16.0;
-    paddingVertical.value = 8.0;
+    textAlign.value = 2; // Giustificato
+    paddingHorizontal.value = 22.0;
+    paddingVertical.value = 12.0;
     autoScrollEnabled.value = false;
     autoScrollSpeed.value = 3.0;
     volumeButtonScrolling.value = false;
@@ -1447,7 +1445,7 @@ class NovelReaderController extends GetxController {
     verticalSeekbar.value = true;
     swipeGestures.value = true;
     pageReaderMode.value = false;
-    themeMode.value = 3;
+    themeMode.value = 1; // Nero Puro AMOLED
     backgroundOpacity.value = 1.0;
     showReadingProgress.value = true;
     showBatteryAndTime.value = true;
@@ -1476,7 +1474,8 @@ class NovelReaderController extends GetxController {
         return const Color(0xFFF7F7F7)
             .withValues(alpha: backgroundOpacity.value);
       case 1:
-        return const Color(0xFF111318)
+        // Nero Puro AMOLED Shinra
+        return const Color(0xFF000000)
             .withValues(alpha: backgroundOpacity.value);
       case 2:
         return const Color(0xFFF1E7D0)
@@ -1489,7 +1488,8 @@ class NovelReaderController extends GetxController {
   Color get readerTextColor {
     switch (themeMode.value) {
       case 1:
-        return const Color(0xFFE6E6E6);
+        // Bianco Caldo / Avorio riposante per schermi OLED
+        return const Color(0xFFE8E6E3);
       case 2:
         return const Color(0xFF4A3B2A);
       default:
@@ -1505,8 +1505,9 @@ class NovelReaderController extends GetxController {
           brightness: Brightness.light,
         );
       case 1:
+        // Schema colore Shinra Cremisi su Nero Puro
         return ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7AA2F7),
+          seedColor: const Color(0xFFFF1E42),
           brightness: Brightness.dark,
         );
       case 2:
