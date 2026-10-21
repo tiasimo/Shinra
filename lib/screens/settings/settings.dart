@@ -3,7 +3,6 @@ import 'package:anymex/screens/settings/search/settings_search_icons.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_about.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_comments.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_accounts.dart';
-import 'package:anymex/screens/settings/sub_settings/settings_discord.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_backup.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_common.dart';
 import 'package:anymex/screens/settings/sub_settings/settings_downloads.dart';
@@ -158,14 +157,8 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildTile(
               icon: IconlyLight.profile,
               title: "Accounts",
-              description: "Manage your MyAnimeList, Anilist, Simkl Accounts!",
+              description: "Accedi e gestisci il tuo account Anilist",
               destination: SettingsAccounts.new,
-            ),
-            _buildTile(
-              icon: Icons.discord,
-              title: "Discord RPC",
-              description: "Configure Discord Rich Presence & activity status",
-              destination: SettingsDiscord.new,
             ),
           ],
         ),

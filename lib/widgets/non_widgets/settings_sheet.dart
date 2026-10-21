@@ -48,18 +48,6 @@ class SettingsSheet extends StatelessWidget {
         'desc': 'Track anime & manga'
       },
       {
-        'type': ServicesType.mal,
-        'name': "MyAnimeList",
-        'icon': 'mal-icon.png',
-        'desc': 'The largest database of anime & manga'
-      },
-      {
-        'type': ServicesType.simkl,
-        'name': "Simkl",
-        'icon': 'simkl-icon.png',
-        'desc': 'for movies and series'
-      },
-      {
         'type': ServicesType.extensions,
         'name': "Extensions",
         'icon': null,

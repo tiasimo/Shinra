@@ -208,16 +208,6 @@ class _SettingsAccountsState extends State<SettingsAccounts> {
         'service': serviceHandler.anilistService,
         'title': 'Anilist',
       },
-      {
-        'serviceIcon': 'mal.png',
-        'service': serviceHandler.malService,
-        'title': 'MyAnimeList',
-      },
-      {
-        'serviceIcon': 'simkl.png',
-        'service': serviceHandler.simklService,
-        'title': 'Simkl',
-      },
     ];
 
     services.sort((a, b) =>

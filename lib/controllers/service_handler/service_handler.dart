@@ -123,11 +123,7 @@ class ServiceHandler extends GetxController {
   // Online Services Method
   Future<void> login(BuildContext context) => onlineService.login(context);
   Future<void> logout() => onlineService.logout();
-  Future<void> autoLogin() => Future.wait([
-        malService.autoLogin(),
-        anilistService.autoLogin(),
-        simklService.autoLogin(),
-      ]);
+  Future<void> autoLogin() => anilistService.autoLogin();
   @override
   Future<void> refresh() => onlineService.refresh();
 
@@ -159,8 +155,11 @@ class ServiceHandler extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    serviceType.value =
-        ServicesType.values[ServiceKeys.serviceType.get<int>(0)];
+    final saved = ServicesType.values[ServiceKeys.serviceType.get<int>(0)];
+    // Shinra usa solo Anilist (e le estensioni): MAL e Simkl sono disattivati.
+    serviceType.value = (saved == ServicesType.mal || saved == ServicesType.simkl)
+        ? ServicesType.anilist
+        : saved;
   }
 
   @override
