@@ -24,13 +24,22 @@ class NovelReaderController extends GetxController {
   Chapter initialChapter;
   List<Chapter> chapters;
   Media media;
-  Source source;
+  Source? source;
+
+  /// Se presente il contenuto dei capitoli arriva da un file locale (EPUB)
+  /// invece che da una fonte online.
+  final Future<String?> Function(Chapter chapter)? localContentLoader;
+
+  /// Chiamata quando cambia il capitolo o si esce dal lettore (solo locale).
+  final void Function(Chapter chapter)? onLocalProgress;
 
   NovelReaderController({
     required this.initialChapter,
     required this.chapters,
     required this.media,
-    required this.source,
+    this.source,
+    this.localContentLoader,
+    this.onLocalProgress,
   });
 
   Rx<Chapter> currentChapter = Chapter().obs;
@@ -126,6 +135,15 @@ class NovelReaderController extends GetxController {
   void onInit() {
     super.onInit();
     currentChapter.value = initialChapter;
+    if (localContentLoader != null) {
+      savedChapter.value = Chapter(
+        link: initialChapter.link,
+        title: initialChapter.title,
+        number: initialChapter.number,
+        currentOffset: initialChapter.currentOffset,
+        maxOffset: initialChapter.maxOffset,
+      );
+    }
     updateNavigationButtons();
     _loadSettings();
     if (keepScreenOn.value) {
@@ -327,8 +345,11 @@ class NovelReaderController extends GetxController {
     try {
       loadingState.value = LoadingState.loading;
       _saveTracking();
-      final data = await source.methods.getNovelContent(
-          currentChapter.value.title ?? '', currentChapter.value.link ?? '');
+      final data = localContentLoader != null
+          ? await localContentLoader!(currentChapter.value)
+          : await source!.methods.getNovelContent(
+              currentChapter.value.title ?? '',
+              currentChapter.value.link ?? '');
       if (data != null && data.isNotEmpty) {
         final processedContent = _buildHtml(data);
         _rawNovelContent = processedContent;
@@ -709,6 +730,7 @@ class NovelReaderController extends GetxController {
   }
 
   Future<void> _resumeFromCloudIfNewer() async {
+    if (source == null) return;
     final ctrl = Get.isRegistered<GistSyncController>()
         ? Get.find<GistSyncController>()
         : null;
@@ -831,6 +853,15 @@ class NovelReaderController extends GetxController {
   }
 
   void _saveTracking({bool syncToCloud = true}) {
+    if (source == null) {
+      // Capitolo locale: la posizione salvata vale solo per il capitolo da cui
+      // si è ripreso, non per quelli che si aprono dopo.
+      if (savedChapter.value.link != currentChapter.value.link) {
+        savedChapter.value = Chapter(link: currentChapter.value.link);
+      }
+      onLocalProgress?.call(currentChapter.value);
+      return;
+    }
     consecutiveReads.value++;
     final chNumber = currentChapter.value.number;
     if (chNumber != null) {
@@ -842,14 +873,15 @@ class NovelReaderController extends GetxController {
     }
     Future.microtask(() {
       offlineStorageController.addOrUpdateNovel(
-          media, chapters, currentChapter.value, source);
+          media, chapters, currentChapter.value, source!);
       offlineStorageController.addOrUpdateReadChapter(
           media.id, currentChapter.value,
-          source: source, syncToCloud: syncToCloud);
+          source: source!, syncToCloud: syncToCloud);
     });
   }
 
   Future<void> _syncCloudProgressOnExit() async {
+    if (source == null) return;
     final syncCtrl = Get.isRegistered<GistSyncController>()
         ? Get.find<GistSyncController>()
         : null;

@@ -19,14 +19,18 @@ class NovelReader extends StatefulWidget {
   final Chapter chapter;
   final Media media;
   final List<Chapter> chapters;
-  final Source source;
+  final Source? source;
+  final Future<String?> Function(Chapter chapter)? localContentLoader;
+  final void Function(Chapter chapter)? onLocalProgress;
 
   const NovelReader({
     super.key,
     required this.chapter,
     required this.media,
     required this.chapters,
-    required this.source,
+    this.source,
+    this.localContentLoader,
+    this.onLocalProgress,
   });
 
   @override
@@ -45,6 +49,8 @@ class _NovelReaderState extends State<NovelReader>
       chapters: widget.chapters,
       media: widget.media,
       source: widget.source,
+      localContentLoader: widget.localContentLoader,
+      onLocalProgress: widget.onLocalProgress,
     ));
   }
 

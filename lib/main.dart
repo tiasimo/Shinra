@@ -50,7 +50,6 @@ import 'package:anymex/screens/notifications/notification_controller.dart';
 import 'package:anymex/utils/notification.dart';
 import 'package:anymex/utils/deeplink.dart';
 import 'package:anymex/utils/external_font_loader.dart';
-import 'package:anymex/utils/register_protocol/register_protocol.dart';
 import 'package:anymex/widgets/common/anymex_scaffold.dart';
 import 'package:anymex/widgets/common/navbar.dart';
 import 'package:anymex_extension_runtime_bridge/Models/Source.dart';
@@ -77,9 +76,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:isar_community/isar.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
-import 'package:window_manager/window_manager.dart';
 
-WebViewEnvironment? webViewEnvironment;
 late Isar isar;
 final appLinks = AppLinks();
 
@@ -159,17 +156,10 @@ void main(List<String> args) async {
     WidgetsFlutterBinding.ensureInitialized();
 
     await safeCall(() async {
-      if (!Platform.isLinux) {
-        if (Platform.isWindows) {
-          webViewEnvironment = await WebViewEnvironment.create();
-        }
-        if (Platform.isAndroid || Platform.isIOS) {
-          await InAppWebViewController.setWebContentsDebuggingEnabled(
-            !const bool.fromEnvironment('dart.vm.product'),
-          );
-        }
-      }
-    }, errorMessage: 'Failed to initialize WebViewEnvironment');
+      await InAppWebViewController.setWebContentsDebuggingEnabled(
+        !const bool.fromEnvironment('dart.vm.product'),
+      );
+    }, errorMessage: 'Failed to initialize WebView');
 
     await safeCall(() => ExternalFontLoader.loadAllFonts(),
         errorMessage: 'Failed to load external fonts');
@@ -182,29 +172,12 @@ void main(List<String> args) async {
     await safeCall(() => dotenv.load(fileName: ".env"),
         errorMessage: 'Failed to load .env file');
 
-    if (!Platform.isLinux) {
-      await safeCall(
-          () => Firebase.initializeApp(
-                options: DefaultFirebaseOptions.currentPlatform,
-              ),
-          errorMessage: 'Failed to initialize Firebase');
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    }
-
-    if (Platform.isWindows || Platform.isLinux) {
-      await safeCall(() {
-        [
-          'dar',
-          'anymex',
-          'sugoireads',
-          'mangayomi',
-          'cloudstreamrepo',
-          'sora',
-          'tachiyomi',
-          'aniyomi'
-        ].forEach(registerProtocolHandler);
-      }, errorMessage: 'Failed to register protocol handlers');
-    }
+    await safeCall(
+        () => Firebase.initializeApp(
+              options: DefaultFirebaseOptions.currentPlatform,
+            ),
+        errorMessage: 'Failed to initialize Firebase');
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     await safeCall(() => Database().init(),
         errorMessage: 'CRITICAL: Database initialization failed');
@@ -223,20 +196,15 @@ void main(List<String> args) async {
         errorMessage: 'Failed to initialize MediaKit');
 
     await safeCall(() async {
-      if (!Platform.isAndroid && !Platform.isIOS) {
-        await windowManager.ensureInitialized();
-        await AnymeXTitleBar.initialize();
-      } else {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-            systemNavigationBarDividerColor: Colors.transparent,
-            systemNavigationBarContrastEnforced: false,
-            systemNavigationBarColor: Colors.transparent,
-            systemNavigationBarIconBrightness: Brightness.dark,
-            statusBarColor: Colors.transparent,
-            statusBarBrightness: Brightness.dark));
-      }
-    }, errorMessage: 'Failed to initialize window manager or system UI');
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark));
+    }, errorMessage: 'Failed to initialize system UI');
 
     FlutterError.onError = (FlutterErrorDetails details) async {
       FlutterError.presentError(details);
@@ -348,12 +316,10 @@ class _MainAppState extends State<MainApp> {
 
     focusNode = FocusNode();
 
-    if (!Platform.isLinux) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        safeCall(() => FcmService.init(),
-            errorMessage: 'Failed to initialize FCM');
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      safeCall(() => FcmService.init(),
+          errorMessage: 'Failed to initialize FCM');
+    });
 
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
@@ -393,25 +359,6 @@ class _MainAppState extends State<MainApp> {
         builder: (context, child) {
           if (PlatformDispatcher.instance.views.length > 1) {
             return child!;
-          }
-          final isDesktop = Platform.isWindows;
-
-          if (isDesktop) {
-            return Stack(
-              children: [
-                RepaintBoundary(child: child!),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    color: Colors.transparent,
-                    child: AnymeXTitleBar.titleBar(),
-                  ),
-                ),
-                // const FpsMeter(),
-              ],
-            );
           }
           return Stack(
             children: [
