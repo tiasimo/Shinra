@@ -935,7 +935,7 @@ class _DecorationClosetSheetState extends State<DecorationClosetSheet>
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text('Apply', style: TextStyle(fontSize: 12)),
+                child: const Text('Applica', style: TextStyle(fontSize: 12)),
               ),
               if (_previewBannerUrl != null) ...[
                 const SizedBox(width: 4),

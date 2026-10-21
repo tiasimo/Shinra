@@ -487,7 +487,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     ));
               },
               icon: const Icon(Icons.forum_rounded, size: 18),
-              label: const Text('View All Comments'),
+              label: const Text('Mostra tutti i commenti'),
               style: FilledButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 28, vertical: 14),

@@ -1539,7 +1539,7 @@ class NovelReaderController extends GetxController {
       case 1:
         // Schema colore Shinra Cremisi su Nero Puro
         return ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF1E42),
+          seedColor: const Color(0xFFF2401C),
           brightness: Brightness.dark,
         );
       case 2:

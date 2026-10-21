@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color seedColor = Colors.red;
+const Color seedColor = Color(0xFFF2401C);
 
 ThemeData lightMode = ThemeData(
   useMaterial3: true,

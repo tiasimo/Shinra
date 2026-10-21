@@ -6,8 +6,8 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/services.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  // Colore ufficiale di Shinra: Rosso Cremisi / Adolla Flame (Cambia in 0xFF8A2BE2 se preferisci Viola Reale)
-  static const Color shinraDefaultColor = Color(0xFFFF1E42);
+  // Colore ufficiale di Shinra: rosso-arancio fuoco, preso dal logo.
+  static const Color shinraDefaultColor = Color(0xFFF2401C);
 
   bool isLightMode;
   bool isSystemMode;
@@ -43,7 +43,7 @@ class ThemeProvider extends ChangeNotifier {
     } else {
       int colorIndex = ThemeKeys.customColorIndex.get<int>(0);
       if (colorIndex == -1) {
-        final hexStr = ThemeKeys.customHexColor.get<String>("#FF1E42");
+        final hexStr = ThemeKeys.customHexColor.get<String>("#F2401C");
         _seedColor = Color(int.parse(hexStr.replaceFirst('#', '0xff')));
       } else {
         _seedColor = colorList[colorIndex];
@@ -112,7 +112,7 @@ class ThemeProvider extends ChangeNotifier {
         ThemeKeys.customHexColor.set(hexStr);
         _seedColor = customColor;
       } else {
-        final hexStr = ThemeKeys.customHexColor.get<String>("#FF1E42");
+        final hexStr = ThemeKeys.customHexColor.get<String>("#F2401C");
         _seedColor = Color(int.parse(hexStr.replaceFirst('#', '0xff')));
       }
     } else {

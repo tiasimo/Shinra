@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:anymex/controllers/custom_logo/custom_logo_service.dart';
-import 'package:anymex/models/custom_logo_model.dart';
-import 'package:anymex/widgets/anymex_widgets/anymex_animated_logo.dart';
 
-/// Splash Screen with Animated Logo
-class AnymeXSplashScreen extends StatefulWidget {
+/// Schermata di avvio di Shinra: immagine a tutto schermo diversa per
+/// verticale e orizzontale.
+class AnymeXSplashScreen extends StatelessWidget {
   final VoidCallback? onAnimationComplete;
 
   const AnymeXSplashScreen({
@@ -13,47 +11,21 @@ class AnymeXSplashScreen extends StatefulWidget {
   });
 
   @override
-  State<AnymeXSplashScreen> createState() => _AnymeXSplashScreenState();
-}
-
-class _AnymeXSplashScreenState extends State<AnymeXSplashScreen> {
-  @override
   Widget build(BuildContext context) {
-    final customLogo = CustomLogoService.getSelectedCustomLogo();
-    final sizeMode = customLogo?.sizeMode ?? CustomLogoSizeMode.defaultSize;
-    final isOriginal = sizeMode == CustomLogoSizeMode.originalSize;
-    final isCustomScale = sizeMode == CustomLogoSizeMode.customScale;
-    final customScale = customLogo?.customScale ?? 1.0;
-
-    Widget logoWidget = AnymeXAnimatedLogo(
-      size: 200,
-      useOriginalSize: isOriginal ? true : null,
-      autoPlay: true,
-      onAnimationComplete: () {
-        // Navigate to home after animation
-        Future.delayed(const Duration(milliseconds: 500), () {
-          widget.onAnimationComplete?.call();
-        });
-      },
-    );
-
-    if (isCustomScale) {
-      logoWidget = Transform.scale(
-        scale: customScale,
-        alignment: Alignment.center,
-        child: logoWidget,
-      );
-    }
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.sizeOf(context).width,
-            maxHeight: MediaQuery.sizeOf(context).height,
-          ),
-          child: logoWidget,
+      body: SizedBox.expand(
+        child: Image.asset(
+          isLandscape
+              ? 'assets/images/splash_landscape.jpg'
+              : 'assets/images/splash_portrait.jpg',
+          // In verticale riempie lo schermo; in orizzontale resta intera
+          // con i bordi sfumati nel nero.
+          fit: isLandscape ? BoxFit.contain : BoxFit.cover,
+          gaplessPlayback: true,
         ),
       ),
     );

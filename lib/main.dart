@@ -73,6 +73,9 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:isar_community/isar.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
@@ -189,8 +192,12 @@ void main(List<String> args) async {
     await safeCall(() => initDeepLinkListener(args),
         errorMessage: 'Failed to initialize deep link listener');
 
-    await safeCall(() => initializeDateFormatting(),
-        errorMessage: 'Failed to initialize date formatting');
+    await safeCall(() async {
+      await initializeDateFormatting('it_IT');
+      Intl.defaultLocale = 'it_IT';
+      timeago.setLocaleMessages('it', timeago.ItMessages());
+      timeago.setDefaultLocale('it');
+    }, errorMessage: 'Failed to initialize date formatting');
 
     await safeCall(() => MediaKit.ensureInitialized(),
         errorMessage: 'Failed to initialize MediaKit');
@@ -347,7 +354,14 @@ class _MainAppState extends State<MainApp> {
       child: GetMaterialApp(
         scrollBehavior: MyCustomScrollBehavior(),
         debugShowCheckedModeBanner: false,
-        title: "AnymeX",
+        title: "Shinra",
+        locale: const Locale('it', 'IT'),
+        supportedLocales: const [Locale('it', 'IT')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         theme: theme.lightTheme,
         darkTheme: theme.darkTheme,
         themeMode: theme.isSystemMode
