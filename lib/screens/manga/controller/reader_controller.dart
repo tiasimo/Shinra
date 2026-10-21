@@ -936,26 +936,25 @@ class ReaderController extends GetxController with WidgetsBindingObserver {
 
   void _getPreferences() {
     readingLayout.value =
-        MangaPageViewMode.values[ReaderKeys.readingLayout.get<int>(0)];
+        MangaPageViewMode.values[ReaderKeys.readingLayout.get<int>(1)];
     readingDirection.value =
-        MangaPageViewDirection.values[ReaderKeys.readingDirection.get<int>(1)];
+        MangaPageViewDirection.values[ReaderKeys.readingDirection.get<int>(2)];
     pageWidthMultiplier.value = ReaderKeys.imageWidth.get<double>(1);
     scrollSpeedMultiplier.value = ReaderKeys.scrollSpeed.get<double>(1);
     spacedPages.value = ReaderKeys.spacedPages.get<bool>(false);
     overscrollToChapter.value = ReaderKeys.overscrollToChapter.get<bool>(true);
     preloadPages.value = ReaderKeys.preloadPages.get<int>(3);
-    showPageIndicator.value = ReaderKeys.showPageIndicator.get<bool>(false);
+    showPageIndicator.value = ReaderKeys.showPageIndicator.get<bool>(true);
     autoScrollEnabled.value = ReaderKeys.autoScrollEnabled.get<bool>(false);
     autoScrollSpeed.value = ReaderKeys.autoScrollSpeed.get<double>(3.0);
-    cropImages.value = ReaderKeys.cropImages.get<bool>(false);
+    cropImages.value = ReaderKeys.cropImages.get<bool>(true);
     fitToScreen.value = ReaderKeys.fitToScreen.get<bool>(false);
-    volumeKeysEnabled.value = ReaderKeys.volumeKeysEnabled.get<bool>(false);
+    volumeKeysEnabled.value = ReaderKeys.volumeKeysEnabled.get<bool>(true);
     invertVolumeKeys.value = ReaderKeys.invertVolumeKeys.get<bool>(false);
 
     final dualPageVal = ReaderKeys.dualPageMode.get<int?>();
-    if (dualPageVal != null) {
-      dualPageMode.value = DualPageMode.values[dualPageVal];
-    }
+    dualPageMode.value =
+        DualPageMode.values[dualPageVal ?? DualPageMode.auto.index];
 
     final modeIndex = ReaderKeys.readingLayout.get<int?>();
     if (modeIndex != null) {
@@ -976,7 +975,7 @@ class ReaderController extends GetxController with WidgetsBindingObserver {
         ReaderKeys.alwaysShowChapterTransition.get<bool>(false);
     longPressPageActionsEnabled.value =
         ReaderKeys.longPressPageActionsEnabled.get<bool>(true);
-    autoWebtoonMode.value = ReaderKeys.autoWebtoonMode.get<bool>(false);
+    autoWebtoonMode.value = ReaderKeys.autoWebtoonMode.get<bool>(true);
     navigateByNumber.value = ReaderKeys.navigateByNumber.get<bool>(false);
     displayRefreshEnabled.value =
         ReaderKeys.displayRefreshEnabled.get<bool>(false);
